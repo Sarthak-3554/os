@@ -1,0 +1,154 @@
+#!/bin/bash
+
+# Function to create a new address book
+createBook() {
+	if ! test -e addressbook.txt; then
+		touch addressbook.txt
+		echo -e "New address book created successfully\n"
+	else
+		echo -e "Address book already exists\n"
+	fi
+}
+
+# Function to insert a record
+insertRecord() {
+	if [ ! -e addressbook.txt ]; then
+		echo -e "Database file not created. Create file first\n"
+	else
+		read -p "Enter id of the record to be inserted: " id
+		read -p "Enter name of the record to be inserted: " name
+		read -p "Enter phone number of the record to be inserted: " phoneNum
+		
+		len=${#phoneNum}
+		
+		if [ $len -eq 10 ]; then
+			echo "$id    $name    $phoneNum" >> addressbook.txt
+			echo -e "Record inserted successfully\n"
+		else
+			echo -e "Phone number should have exactly 10 digits\n"
+		fi
+	fi
+}
+
+# Function to display records
+display() {
+	echo -e "Id    Name    Phone"
+	sort addressbook.txt
+	echo -e "\n"
+}
+
+# Function to search a record
+search() {
+	read -p "Enter the id of the record to be searched: " id
+	
+	grep -i -w "$id" addressbook.txt > temp.txt
+	
+	if [ -s temp.txt ]; then
+		cat temp.txt
+		rm temp.txt
+	else
+		echo -e "Record not found\n"
+	fi
+	echo -e "\n"
+}
+
+# Function to delete a record
+delete() {
+	read -p "Enter the id of the record to be deleted: " id
+	
+	grep -i -w "$id" addressbook.txt > temp.txt
+	
+	if [ -s temp.txt ]; then
+		grep -i -w -v "$id" addressbook.txt > temp.txt
+		mv temp.txt addressbook.txt
+		echo -e "Record deleted successfully\n"
+	else
+		echo -e "Record not found\n"
+	fi
+}
+
+# Function to update a record
+update() {
+	read -p "Enter the id of the record to be updated: " id
+	grep -i -w "$id" addressbook.txt > temp.txt
+	
+	if [ -s temp.txt ]; then
+		read -p "Enter the field to be modified(n for name, p for phone number, a for all): " field
+		
+		if [ "$field" == "n" ]; then
+			oldName=`awk '{print $2}' temp.txt`
+			
+			read -p "Enter the new value of name: " newName
+			sed -i "s/$id    $oldName/$id    $newName/" temp.txt
+			
+			grep -i -w -v "$id" addressbook.txt > temp1.txt
+			mv temp1.txt addressbook.txt
+			
+			cat temp.txt >> addressbook.txt
+			rm temp.txt
+		fi
+		
+		if [ "$field" == "p" ]; then
+			oldName=`awk '{print $2}' temp.txt`
+			oldPhone=`awk '{print $3}' temp.txt`
+			
+			read -p "Enter the new value of phone number: " phoneNum
+			sed -i "s/$id    $oldName    $oldPhone/$id    $oldName    $phoneNum/" temp.txt
+			
+			grep -i -w -v "$id" addressbook.txt > temp1.txt
+			mv temp1.txt addressbook.txt
+			
+			cat temp.txt >> addressbook.txt
+			rm temp.txt
+		fi
+		
+		if [ "$field" == "a" ]; then
+			oldName=`awk '{print $2}' temp.txt`
+			oldPhone=`awk '{print $3}' temp.txt`
+			
+			read -p "Enter the new value of name: " name
+			read -p "Enter the new value of phone number: " phoneNum
+			sed -i "s/$id    $oldName    $oldPhone/$id    $name    $phoneNum/" temp.txt
+			
+			grep -i -w -v "$id" addressbook.txt > temp1.txt
+			mv temp1.txt addressbook.txt
+			
+			cat temp.txt >> addressbook.txt
+			rm temp.txt
+		fi
+		
+		echo -e "Record updated successfully\n"
+	else
+		echo -e "Record not found\n"
+	fi 
+}
+
+# Function to display menu
+menu() {	
+	echo "1. Create new address book"
+	echo "2. Insert new record"
+	echo "3. Display all records"
+	echo "4. Search a record"
+	echo "5. Delete a record"
+	echo "6. Modify a record"
+	echo "7. Exit program"
+}
+
+
+while true;
+do
+	menu
+	echo "Enter your choice: "
+	read choice
+	echo -e "\n"
+
+	case $choice in
+		1) createBook ;;
+		2) insertRecord ;;
+		3) display ;;
+		4) search ;;
+		5) delete ;;
+		6) update ;;
+		7) echo "Thank you for using this program"; exit 0 ;;
+	esac
+done
