@@ -1,0 +1,169 @@
+#include<stdlib.h>
+#include <stdio.h>
+
+
+
+
+//--------------------------------------------  IN FARHEST JOB:  TRICK: for -> for -> if ->if ----------------------------------------------------------------
+
+
+
+
+
+
+
+
+int frameSize;
+
+
+
+// Function to check if a page exists in the frames
+
+int checkPageFault(int frames[], int size,int page) 
+{
+    for (int i = 0; i < size; i++) 
+    {
+        if (frames[i] == page) 
+        {
+            return 0; // Page hit
+        }
+    }
+    
+    return 1; // Page fault
+}
+
+
+
+
+
+// Function to print the current frame state
+
+void printFrame(int frames[], int size, char hm) 
+{
+    printf("\n");
+    for (int i = 0; i < size; i++) 
+    {
+        printf(" %d ", frames[i]);
+    }
+    
+    printf("%c\n", hm);
+}
+
+
+
+
+
+// Function to find the farthest index in the future where a page in frames will be referenced
+
+
+int getFarthestIndex(int requestSequence[], int farmes[],int start, int seq) 
+{
+    int far = -1;                                    // farthest variable is used to store the index in the requestSequence array
+    int ind;                                         //ind variable is used to store the index of the page which will be removed
+
+    for (int i = 0; i < frameSize; i++)               // i is used for traversing through the frames[] and j is used to traverse through requestSequence
+       {
+        int flagToCheckNoOccurrence = 0;              //  i - frame
+                                                      //  j - req
+        for (int j = start; j < seq; j++) 
+        {
+            if (frames[i] == requestSequence[j]) 
+            {
+                if (far < j) 
+                {
+                    ind = i;
+                    far = j;
+                }
+                flagToCheckNoOccurrence = 1;
+                break;
+            }
+            
+        }
+
+        if (flagToCheckNoOccurrence == 0)     // jar request sequence madhe to page naselch pudhe kuthe tar tu ithe yenar!! That means , that index is the farthest used index!!
+         {
+            return i;
+        }
+    }
+
+    return ind;
+    
+}
+
+
+
+
+// OPTIMAL page replacement algorithm
+int optimal()
+ {
+ 
+    int numPageRequests, i;
+
+    printf("Enter the frame size: ");
+    scanf("%d", &frameSize);
+
+    printf("Enter the number of page requests: ");
+    scanf("%d", &numPageRequests);
+
+    int requestSequence[numPageRequests];
+
+    printf("Enter the page request sequence:\n");
+    for (i = 0; i < numPageRequests; i++) 
+    {
+        scanf("%d", &requestSequence[i]);
+    }
+    
+    
+ 
+ 
+    int numberOfPageFaults = 0;
+    int size = 0;
+    int frames[frameSize];
+
+    for (int i = 0; i < seq; i++) 
+    {
+      int page=requestSequence[i];
+      
+        if (checkPageFault( frames, size,page)) 
+        {
+            if (size < frameSize) 
+            {
+                frames[size] = page;
+                numberOfPageFaults++;
+                size++;
+                printFrame(frames, size, 'm'); // 'm' for a page miss
+            } 
+            
+            else 
+            {
+                int ind = getFarthestIndex(requestSequence,frames, i + 1, seq);
+                numberOfPageFaults++;
+                frames[ind] = page;
+                printFrame(frames, size, 'm');
+            }
+        } 
+        else 
+        {
+            printFrame(frames, size, 'h'); // 'h' for a page hit
+        }
+    
+    }
+
+    return numberOfPageFaults;
+    
+}
+
+
+int main() 
+
+{
+    int optimalPageFaults = optimal();
+    printf("Total page faults for OPTIMAL: %d\n", optimalPageFaults);
+
+    return 0;
+    
+}
+
+
+
+
