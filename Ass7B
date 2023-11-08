@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <sys/shm.h>    //These two functionailties ar new
+#include <sys/ipc.h>
+
+int main() 
+{
+
+    // Creating unique key
+    key_t key = ftok(".", 69);
+
+    // Creating shared memory segment
+    int shmId = shmget(key, 1024, IPC_CREAT | 0666);
+
+    // Attaching process to shared memory
+    char* sharedMem = (char*)shmat(shmId, NULL, 0);
+
+    printf("Enter message to be written to memory segment: ");
+    fgets(sharedMem, 200, stdin);
+
+    // Detaching shared memory
+    shmdt(sharedMem);
+
+    return 0;
+    
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/shm.h>
+#include <unistd.h>
+
+int main() {
+    // Creating unique key
+    key_t key = ftok(".", 69);
+
+    // Creating shared memory segment
+    int shmId = shmget(key, 1024, IPC_CREAT | 0666);
+
+    // Attaching process to shared memory
+    char* sharedMem = (char*)shmat(shmId, NULL, 0);
+
+    // Displaying message
+    printf("Message from shared memory segment: %s\n", sharedMem);
+
+    // Destroying shared memory segment
+    shmctl(shmId, IPC_RMID, NULL);
+
+    return 0;
+}
+
