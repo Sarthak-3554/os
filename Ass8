@@ -1,279 +1,419 @@
-Code: SCAN ALGORITHM
 #include <stdio.h>
 #include <stdlib.h>
-int main()
-{
-int queue[20], n, head, i, j, k, seek = 0, max, diff, temp, queue1[20], queue2[20],
 
-temp1 = 0, temp2 = 0;
 
-float avg;
-printf("Enter the max range of disk\n");
-scanf("%d", &max);
-printf("Enter the initial head position\n");
-scanf("%d", &head);
-printf("Enter the size of queue request\n");
-scanf("%d", &n);
-printf("Enter the queue of disk positions to be read\n");
-for (i = 1; i <= n; i++)
-{
-scanf("%d", &temp);
-if (temp >= head)
-{
-queue1[temp1] = temp;
-temp1++;
-}
-else
-{
-queue2[temp2] = temp;
-temp2++;
-}
-}
-for (i = 0; i < temp1 - 1; i++)
+//SSTF Algorithm 
+
+int SSTF()
 
 {
-for (j = i + 1; j < temp1; j++)
-{
-if (queue1[i] > queue1[j])
-{
-temp = queue1[i];
-queue1[i] = queue1[j];
-queue1[j] = temp;
-}
-}
-}
-for (i = 0; i < temp2 - 1; i++)
-{
-for (j = i + 1; j < temp2; j++)
-{
-if (queue2[i] > queue2[j])
-{
-temp = queue2[i];
-queue2[i] = queue2[j];
-queue2[j] = temp;
-}
-}
-}
-for (i = 1, j = 0; j < temp1; i++, j++)
-queue[i] = queue1[j];
-queue[i] = max;
-queue[i + 1] = 0;
-for (i = temp1 + 3, j = 0; j < temp2; i++, j++)
-queue[i] = queue2[j];
-queue[0] = head;
-for (j = 0; j <= n + 1; j++)
-{
-diff = abs(queue[j + 1] - queue[j]);
-seek += diff;
-printf("Disk head moves from %d to %d with seek %d\n", queue[j], queue[j + 1],
-diff);
+    int i, n, seek = 0, head, count = 0;
+    
+    printf("Enter the number of Requests\n");
+    scanf("%d", &n);
 
+    int RQ[n];
+    
+    printf("Enter the Requests sequence\n");
+    
+    for (i = 0; i < n; i++)
+    {
+        scanf("%d", &RQ[i]);
+    }
+    
+    printf("Enter initial head position\n");
+    scanf("%d", &head);
+
+    while (count != n)    // run the loop until all request are processed
+    {
+        int min = 1000, d, index;   // min: used as a reference value for comparison
+                                    // d:  used for calculating the difference between head and current
+
+        for (i = 0; i < n; i++)
+        {
+            d = abs(RQ[i] - head);  
+
+            if (min > d)           // this if condition is used to find the minimum d 
+            {
+                min = d;
+                index = i;         // storing the index number in index variable to mark it visited
+            }
+        }
+        
+        seek = seek + min;   // calculating the total seek time
+        head = RQ[index];                       
+
+
+        RQ[index] = 1000;   //If the index is visited make it 1000 so that it isnt visited again
+
+        count++;            // increment the count
+    }
+    
+    
+    printf("Total head movement is %d",seek);
+
+    return 0;
+    
 }
-printf("Total seek time is %d\n", seek);
-avg = seek / (float)n;
-printf("Average seek time is %f\n", avg);
-return 0;
-}
 
-/*Output*/
-Shantanu@DELL:/mnt/c/Users/Shantanu/OneDrive/Desktop/OSL$ gcc algo_8.c
-Shantanu@DELL:/mnt/c/Users/Shantanu/OneDrive/Desktop/OSL$ ./a.out
-Enter the max range of disk
-200
-Enter the initial head position
-50
-Enter the size of queue request
-8
-Enter the queue of disk positions to be read
-90
-120
-35
-122
-38
-128
-65
-68
-Disk head moves from 50 to 65 with seek 15
-Disk head moves from 65 to 68 with seek 3
-Disk head moves from 68 to 90 with seek 22
-Disk head moves from 90 to 120 with seek 30
-Disk head moves from 120 to 122 with seek 2
-Disk head moves from 122 to 128 with seek 6
-Disk head moves from 128 to 200 with seek 72
-Disk head moves from 200 to 0 with seek 200
-Disk head moves from 0 to 35 with seek 35
-Disk head moves from 35 to 38 with seek 3
 
-Total seek time is 388
-Average seek time is 48.500000
-===============================================================
-==============
+ int main()
+   {
+    
+    int ch,YN;
+    
+    do{
+        //system("clear");
+        printf("\n\n\t*********** MENU ***********"); 
+        printf("\n\n\t1:SSTF\n\n\t2:EXIT"); 
+        printf("\n\n\tEnter your choice: ");
+        
+        scanf("%d", &ch);
 
-Code:FCFS ALGORITHM
+        switch (ch)
+        {
+            case 1:
+		        // for (i = 0; i < f; i++)
+		        // {
+		        //     F[i] = -1;
+		        // }
+		        SSTF();
+            break;
+            
+            
+            
+            
+            case 2:
+                exit(0);
+            
+        } 
+        
+        printf("\n\n\tDo u want to continue IF YES PRESS 1\n\n\tIF NO PRESS 0: ");
+        scanf("%d", &YN);
+         
+    } while (YN == 1);
+
+
+    return 0;
+
+    }
+//SCAN
+
 #include <stdio.h>
 #include <stdlib.h>
-int main() {
-int queue[100], n, head, i, seek = 0;
-float avg_seek=0;
-printf("Enter the number of requests: ");
-scanf("%d", &n);
-printf("Enter the requests: ");
-for (i = 0; i < n; i++) {
-scanf("%d", &queue[i]);
-}
-printf("Enter the initial head position: ");
-scanf("%d", &head);
-for (i = 0; i < n; i++) {
-seek += abs(head - queue[i]);
-head = queue[i];
-}
-avg_seek=seek/n;
-printf("Total number of seek operations: %d\n", seek);
-printf("Average Seek Time is %f\n",avg_seek);
-return 0;
-}
-/*Output*/
-Shantanu@DELL:/mnt/c/Users/Shantanu/OneDrive/Desktop/OSL$ gcc FCFS.c
-Shantanu@DELL:/mnt/c/Users/Shantanu/OneDrive/Desktop/OSL$ ./a.out
-Enter the number of requests: 8
 
-Enter the requests: 90
-120
-35
-122
-38
-128
-65
-68
-Enter the initial head position: 50
-Total number of seek operations: 482
-Average Seek Time is 60.000000
-===============================================================
-=============
+int no_req, track, head, distance;
+int disc_req[100];
 
-Code:
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-int main() {
-int queue[100], queue2[100], q_size, head, seek=0, temp;
-float avg;
-printf("%s\n", "-----SSTF Disk Scheduling Algorithm-----");
-printf("%s\n", "Enter the size of the queue");
-scanf("%d", &q_size);
-printf("%s\n", "Enter queue elements");
-for(int i=0; i<q_size; i++){
-scanf("%d",&queue[i]);
-}
-printf("%s\n","Enter initial head position");
-
-scanf("%d", &head);
-//get distance from head of elems in queue
-for(int i=0; i<q_size; i++){
-queue2[i] = abs(head-queue[i]);
-}
-//swap elems based on their distance from each other
-for(int i=0; i<q_size; i++){
-for(int j=i+1; j<q_size;j++){
-if(queue2[i]>queue2[j]){
-temp = queue2[i];
-queue2[i]=queue[j];
-queue2[j]=temp;
-temp=queue[i];
-queue[i]=queue[j];
-queue[j]=temp;
-}
-}
-}
-for(int i=1; i<q_size; i++){
-seek = seek+abs(head-queue[i]);
-head = queue[i];
-}
-printf("\nTotal seek time is %d\t",seek);
-avg = seek/(float)q_size;
-printf("\nAverage seek time is %f\t", avg);
-return 0;
-}
-
-/*OUTPUT*/
-Shantanu@DELL:/mnt/c/Users/Shantanu/OneDrive/Desktop/OSL$ gcc SSTF.c
-Shantanu@DELL:/mnt/c/Users/Shantanu/OneDrive/Desktop/OSL$ ./a.out
------SSTF Disk Scheduling Algorithm-----
-Enter the size of the queue
-8
-Enter queue elements
-90
-120
-35
-122
-38
-128
-65
-68
-Enter initial head position
-50
-Total seek time is 108
-Average seek time is 13.500000
-===============================================================
-===============
-
-CODE:LOOK ALGORITHM
-#include <stdio.h>
-#include <stdlib.h>
-int main()
+void sort() 
 {
-int queue[100], n, head, i, j, seek = 0, direction;
-float avg_seek=0;
-printf("Enter the number of requests: ");
-scanf("%d", &n);
-printf("Enter the requests: ");
+    int i, j, temp;
+    for (i = 0; i < no_req; i++) 
+    {
+        for (j = 0; j < no_req-i-1; j++) 
+        {
+            if (disc_req[j] > disc_req[j+1])
+             {
+                temp = disc_req[i];
+                disc_req[i] = disc_req[j];
+                disc_req[j] = temp;
+            }
+        }
+    }
+}
 
-for (i = 0; i < n; i++) {
-scanf("%d", &queue[i]);
-}
-printf("Enter the initial head position: ");
-scanf("%d", &head);
-printf("Enter the direction (0 for left, 1 for right): ");
-scanf("%d", &direction);
-for (i = 0; i < n; i++) {
-for (j = i + 1; j < n; j++) {
-if (queue[i] > queue[j]) {
-int temp = queue[i];
-queue[i] = queue[j];
-queue[j] = temp;
-}
-}
-}
-int index;
-for (i = 0; i < n; i++) {
-if (queue[i] >= head) {
-index = i;
-break;
-}
-}
-if (direction == 0) {
-for (i = index - 1; i >= 0; i--) {
-seek += abs(head - queue[i]);
-head = queue[i];
-}
-for (i = index; i < n; i++) {
-seek += abs(head - queue[i]);
-head = queue[i];
-}
-}
-else {
-for (i = index; i < n; i++) {
-seek += abs(head - queue[i]);
+void scan() 
+{
 
-head = queue[i];
+    int index, dir;                    //index variable to find the position of the vraible in the req_seq array that is just smaller than the head
+                                       // dir to decode the direction of the variable
+    int i;
+    
+    
+     printf("Enter the number of disk requests: ");
+     scanf("%d", &no_req);
+
+     printf("Enter the total track capacity: ");
+     scanf("%d", &track);
+
+     printf("Enter the initial head position: ");
+     scanf("%d", &head);
+
+     printf("Enter the disk requests:\n");
+     for (int i = 0; i < no_req; i++) 
+     {
+         scanf("%d", &disc_req[i]);
+                
+     }
+                
+                
+    distance = 0;                                      //to store the seek movements
+    //head = head;
+    
+    printf("\nEnter the direction of head\n1 - Toward higher disc (Right)\n0 - Toward lower disc (Left): ");
+    scanf("%d", &dir);
+    
+    sort();                                           //NOTE:  -----------------------SORTING IS THE MOST IMP STEP IN THE SCAN ALGO-------------------------------
+    
+    
+    printf("\nSorted Disc requests are: ");
+    for (i = 0; i < no_req; i++) 
+    {
+        printf("%d ", disc_req[i]);
+    }
+
+    i = 0;
+    
+    while (head >= disc_req[i]) 
+    {
+        index = i;
+        i++;
+    }
+    
+    
+    printf("\nindex=%d", index);
+    printf("\n%d => ", head);
+
+    if (dir == 1) 
+    {
+        sort();
+        for (i = index + 1; i < no_req; i++) 
+        {
+            printf("%d => ", disc_req[i]);
+            distance += abs(head - disc_req[i]);
+            head = disc_req[i];
+        }
+        distance += abs(head - (track - 1));
+        printf("%d => ", track - 1);
+        head = track - 1;
+        for (i = index; i >= 0; i--) 
+        {
+            printf("%d => ", disc_req[i]);
+            distance += abs(head - disc_req[i]);
+            head = disc_req[i];
+      }
+    } 
+    else 
+    {
+        sort();
+        for (i = index; i >= 0; i--) 
+        {
+            printf("%d => ", disc_req[i]);
+            distance += abs(head - disc_req[i]);
+            head = disc_req[i];
+        }
+        distance += abs(head - 0);
+        head = 0;
+        printf("0 => ");
+        for (i = index + 1; i < no_req; i++) 
+        {
+            printf("%d => ", disc_req[i]);
+            distance += abs(head - disc_req[i]);
+            head = disc_req[i];
+        }
+    }
+    printf("End");
+    printf("\nTotal Distance Traversed = %d", distance);
+    
 }
-for (i = index - 1; i >= 0; i--) {
-seek += abs(head - queue[i]);
-head = queue[i];
+
+int main() 
+
+{
+
+    int choice;
+    
+    do {
+        printf("\nMenu:\n");
+        printf("1. SCan\n");
+        printf("2. Exit\n");
+        
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) 
+        {
+            case 1:
+               
+
+                scan();
+                break;
+
+            case 2:
+                printf("Exiting the program.\n");
+                break;
+
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+        
+    } while (choice != 2);
+
+    return 0;
+    
+    
 }
+
+//CLOOK
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int no_req, track, head, distance;
+int disc_req[100];
+
+//----------------------------------------------------CLOOK CODE ----------------------------------------------------------
+
+//*********************   NOTE : Same code aahe as that of scan, fakt ithe shevat paryant jaat nahi 
+                      //         as sson as you raech the last request to the right or to the left you change the direction
+                      //    and circularly go from back 
+
+void sort() 
+{
+    int i, j, temp;
+    for (i = 0; i < no_req; i++) 
+    {
+        for (j = 0; j < no_req-i-1; j++) 
+        {
+            if (disc_req[j] > disc_req[j+1]) 
+            {
+                temp = disc_req[i];
+                disc_req[i] = disc_req[j];
+                disc_req[j] = temp;
+            }
+        }
+    }
 }
-avg_seek=seek/n;
-printf("Total number of seek operations: %d\n", seek);
-printf("Average Seek Time %f\n",avg_seek);
-return 0;
+
+
+
+void clook() 
+
+{
+    int index, dir;
+    int i;
+    distance = 0;
+    head = head;
+    
+    printf("\nEnter the direction of head\n1 - Toward higher disc\n0 - Toward lower disc: ");
+    scanf("%d", &dir);
+    
+    sort();
+    
+    printf("\nSorted Disc requests are: ");
+    for (i = 0; i < no_req; i++) 
+    {
+        printf(" %d", disc_req[i]);
+    }
+
+    i = 0;
+    
+    while (head >= disc_req[i]) 
+    {
+        index = i;
+        i++;
+    }
+    
+    
+    printf("\nindex=%d", index);
+    printf("\n%d => ", head);
+    
+
+    if (dir == 1) 
+    {
+        sort();
+        
+        for (i = index + 1; i < no_req; i++) 
+        {
+            printf("%d => ", disc_req[i]);
+            distance += abs(head - disc_req[i]);
+            head = disc_req[i];
+        }
+        
+        for (i = 0; i < index; i++) 
+        {
+            printf("%d => ", disc_req[i]);
+            distance += abs(head - disc_req[i]);
+            head = disc_req[i];
+        }
+        
+    } 
+    
+    else 
+    {
+        sort();
+        for (i = index; i >= 0; i--) 
+        {
+            printf("%d => ", disc_req[i]);
+            distance += abs(head - disc_req[i]);
+            head = disc_req[i];
+        }
+        
+        for (i = no_req - 1; i > index; i--) 
+        {
+            printf("%d => ", disc_req[i]);
+            distance += abs(head - disc_req[i]);
+            head = disc_req[i];
+        }
+        
+    }
+
+    printf("End");
+    printf("\nTotal Distance Traversed = %d", distance);
+    
+    
 }
+
+int main() 
+
+{
+
+    int choice;
+    
+    do 
+    {
+        printf("\nMenu:\n");
+        printf("1. Perform C-LOOK Disk Scheduling\n");
+        printf("2. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) 
+        {
+            case 1:
+                printf("Enter the number of disk requests: ");
+                scanf("%d", &no_req);
+
+                printf("Enter the total track capacity: ");
+                scanf("%d", &track);
+
+                printf("Enter the initial head position: ");
+                scanf("%d", &head);
+
+                printf("Enter the disk requests:\n");
+                
+                for (int i = 0; i < no_req; i++) 
+                {
+                    scanf("%d", &disc_req[i]);
+                }
+
+                clook();
+                break;
+
+            case 2:
+                printf("Exiting the program.\n");
+                break;
+
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+        
+    } while (choice != 2);
+
+    return 0;
+}
+
+
+
