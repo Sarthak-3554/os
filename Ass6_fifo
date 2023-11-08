@@ -1,0 +1,129 @@
+#include <stdio.h>
+#include <stdlib.h> // Include the stdlib.h header for malloc and free
+
+int frameSize;
+
+// Function to check if a page exists in the frames
+
+
+int checkPageFault( int frames[],int page) 
+{
+    for (int i = 0; i < frameSize; i++) 
+    {
+        if (frames[i] == page) 
+        {
+            return 0; // Page hit
+        }
+        
+    }
+    
+    return 1; // Page fault
+    
+}
+
+// Function to print the current frame state
+
+
+void printFrame(int frames[], int size, char hm) 
+
+{
+    printf("\n");
+    for (int i = 0; i < size; i++) 
+    {
+        printf(" %d ", frames[i]);
+    }
+    
+    printf("%c\n", hm);
+}
+
+
+// FIFO page replacement algorithm
+
+//-------------------------NOTE:  size for current frame index , frameSize for fixed frame size(here 3), seq for request sequence-------------------------------
+
+
+int fifo() 
+{
+
+    int seq;
+
+    printf("Enter the number of frames: ");
+    scanf("%d", &frameSize);
+
+    printf("Enter Request Sequence size: ");
+    scanf("%d", &seq);
+
+    //int* requestSequence = (int*)malloc(seq * sizeof(int)); // Dynamically allocate memory
+    
+    int requestSequence[seq];
+    
+    
+
+    //if (requestSequence == NULL) 
+    //{
+    //    printf("Memory allocation failed.\n");
+     //   return 1; // Exit with an error code
+    //}
+
+    for (int i = 0; i < seq; i++) 
+    {
+        //printf("Enter element %d: ", i + 1);
+        scanf("%d", &requestSequence[i]);
+    }
+
+
+    int size = 0;                                   // size: a variable to indicate the current capacity of the the frames array
+    int frames[frameSize];
+    
+    int ind = 0;                                    //ind:  a variable which is used to store the index of the variabl which was last accessed
+    int numberOfPageFault = 0;
+
+    for (int i = 0; i < seq; i++) 
+    {
+      
+      int page=requestSequence[i];
+      
+        if (checkPageFault(frames,page))            // miss  ----->2 conditions.     1.THe frame is yet to be filled
+        {
+            if (size < frameSize)                                                   
+            {
+                numberOfPageFault++;
+                frames[size] = page; // Update the frame before printing
+                size++;
+                printFrame(frames, size, 'm'); // 'm' for a page miss
+            } 
+            
+            else                                                                 //   2.The frame is filled  (Here ind is used to store the index which was erlier acceseed)       
+            {
+                numberOfPageFault++;
+                frames[ind] = page;
+                ind = (ind + 1) % frameSize;
+                printFrame(frames, size, 'm');
+            }
+            
+        }
+        
+         else 
+         
+         {
+            printFrame(frames, size, 'h'); // 'h' for a page hit
+          }
+    }
+
+    return numberOfPageFault;
+    
+    
+}
+
+int main() 
+
+{
+   
+    printf("The number of page faults are %d\n", fifo());
+
+    // Don't forget to free the allocated memory
+    //free(requestSequence);
+
+    return 0;
+}
+
