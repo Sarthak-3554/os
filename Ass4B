@@ -1,0 +1,121 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd>
+
+sem_t mutex;        // Mutex to control access to shared variables
+sem_t wrt;          // Semaphore to control writer priority
+
+int read_count = 0; // Number of readers currently reading
+int var = 0;
+
+void *reader(void *arg) 
+{
+    int reader_id = *(int *)arg;
+
+    while (1) 
+    {
+        sem_wait(&mutex);
+        read_count++;
+        
+        if (read_count == 1) 
+        {
+            sem_wait(&wrt); // First reader locks the writer out
+        }
+        sem_post(&mutex);
+
+        // Reading operation
+        printf("Reader %d is reading.\n", reader_id);
+        printf("Value read by reader is: %d \n", var);
+
+        sem_wait(&mutex);
+        read_count--;
+        if (read_count == 0) 
+        {
+            sem_post(&wrt); // Last reader unlocks the writer
+        }
+        sem_post(&mutex);
+
+        // Simulate some delay for reading
+        sleep(10); // Sleep for 1 second
+    }
+    
+    
+}
+
+
+void *writer(void *arg) 
+{
+    int writer_id = *(int *)arg;
+
+    while (1) 
+    {
+        sem_wait(&wrt); // Writer wants to write, block readers
+        
+        // Writing operation
+        printf("Writer %d is writing.\n", writer_id);
+        var++;
+        
+        printf("Value updated by writer: %d \n", var);
+        sem_post(&wrt); // Writer is done writing, allow readers and other writers
+
+
+        // Simulate some delay for writing
+        sleep(20); // Sleep for 2 seconds
+        
+    }
+    
+}
+
+int main() 
+{
+    int num_readers, num_writers;
+
+    printf("Enter the number of readers: ");
+    scanf("%d", &num_readers);
+
+    printf("Enter the number of writers: ");
+    scanf("%d", &num_writers);
+    
+    printf("Initial value of data is: %d \n", var);
+
+    pthread_t readers[num_readers], writers[num_writers];
+    int reader_ids[num_readers], writer_ids[num_writers];
+
+    // Initialize semaphores
+    sem_init(&mutex, 0, 1);
+    sem_init(&wrt, 0, 1);
+
+    // Create reader threads
+    for (int i = 0; i < num_readers; i++) 
+    {
+        reader_ids[i] = i + 1;
+        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
+    }
+
+    // Create writer threads
+    for (int i = 0; i < num_writers; i++) 
+    {
+        writer_ids[i] = i + 1;
+        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
+    }
+
+    // Join threads
+    for (int i = 0; i < num_readers; i++) 
+    {
+        pthread_join(readers[i], NULL);
+    }
+    
+    for (int i = 0; i < num_writers; i++) 
+    {
+        pthread_join(writers[i], NULL);
+    }
+
+    // Clean up semaphores
+    sem_destroy(&mutex);
+    sem_destroy(&wrt);
+
+    return 0;
+    
+}
+
