@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int frameSize;
+
+// Function to check if a page exists in the frames
+
+
+int checkPageFault( int frames[], int size,int page) 
+{
+    for (int i = 0; i < size; i++) 
+    {
+        if (frames[i] == page) 
+        {
+            return 0; // Page hit
+        }
+        
+    }
+    
+    return 1; // Page fault
+    
+    
+}
+
+
+// Function to print the current frame state
+
+void printFrame(int frames[], int size, char hm) 
+{
+    printf("\n");
+    
+    for (int i = 0; i < size; i++) 
+    {
+        printf(" %d ", frames[i]);
+    }
+    
+    printf("\t");
+    printf("%c\n", hm); // hit or miss
+    
+}
+
+
+// Function to find the least recently used index
+int getLRUIndex(int recency[], int size) 
+{
+    int minRecency = recency[0];
+    int lruIndex = 0;
+
+    for (int i = 1; i < size; i++) 
+    {
+        if (recency[i] < minRecency) 
+        {
+            minRecency = recency[i];
+            lruIndex = i;
+        }
+    }
+
+    return lruIndex;
+    
+}
+
+// LRU page replacement algorithm
+int lru() 
+{
+    int seq;
+
+    printf("Enter the frame size: ");
+    scanf("%d", &frameSize);
+
+    printf("Enter the number of page requests: ");
+    scanf("%d", &seq);
+
+    int requestSequence[seq];
+
+    printf("Enter the page request sequence:\n");
+
+    for (int i = 0; i < seq; i++) 
+    {
+        scanf("%d", &requestSequence[i]);
+    }
+
+    int numberOfPageFaults = 0;
+    int size = 0;
+    
+    int frames[frameSize];
+    int recency[frameSize];
+    
+    for (int i = 0; i < frameSize; i++) 
+    {
+        frames[i] = -1; // Initialize frames with -1 to indicate empty frames
+        recency[i] = 0;
+    }
+    
+    
+
+    for (int i = 0; i < seq; i++) 
+    {
+        int page = requestSequence[i];
+
+        if (checkPageFault(frames, size,page)) 
+        {
+            if (size < frameSize) 
+            {
+                // Frame has free space
+                frames[size] = page;
+                recency[size] = i;
+                numberOfPageFaults++;
+                size++;
+                printFrame(frames, size, 'm');
+            } 
+            
+            else 
+            {
+                // Find the least recently used page
+                int replaceIndex = getLRUIndex(recency, size);
+
+                // Replace the LRU page
+                frames[replaceIndex] = page;
+                recency[replaceIndex] = i;
+                numberOfPageFaults++;
+                printFrame(frames, size, 'm');
+            }
+            
+        } 
+        
+        else 
+        {
+            // Page hit, update recency
+            for (int j = 0; j < size; j++) 
+            {
+                if (frames[j] == page) 
+                {
+                    recency[j] = i;
+                    break;
+                }
+            }
+            
+            printFrame(frames, size, 'h');
+        }
+    }
+
+    return numberOfPageFaults;
+}
+
+int main() 
+{
+    int lruPageFaults = lru();
+    printf("Total page faults for LRU: %d\n", lruPageFaults);
+
+    return 0;
+}
+
